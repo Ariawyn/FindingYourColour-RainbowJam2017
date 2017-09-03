@@ -13,6 +13,7 @@ public class AudioManager : MonoBehaviour {
 	private Sound currentBGM;
 
 	// Volume values
+	private float masterVolume = 1f;
 	private float musicVolume = 1f;
 	private float effectsVolume = 1f;
 
@@ -82,11 +83,23 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
-	// Function called to set the audio managers music volume
+	// Function called to set the audio managers master volume
+	public void setMasterVolume(float volume) 
+	{
+		// Set new master volume value
+		this.masterVolume = volume;
+
+		// Change all music sound instances to new volume
+		// We can do this by calling the set volume functions as they use the master volume value
+		this.setMusicVolume(this.musicVolume);
+		this.setEffectsVolume(this.effectsVolume);
+	}
+
+	// Function called to set the audio managers music volume	
 	public void setMusicVolume(float volume) 
 	{
 		// Set new music volume value
-		this.musicVolume = volume;
+		this.musicVolume = volume * this.masterVolume;
 
 		// Change all music sound instances to new volume
 		this.updateVolume();
@@ -96,7 +109,7 @@ public class AudioManager : MonoBehaviour {
 	public void setEffectsVolume(float volume) 
 	{
 		// Set new music volume value
-		this.effectsVolume = volume;
+		this.effectsVolume = volume * this.masterVolume;
 
 		// Change all effects sound instances to new volume
 		this.updateVolume();
@@ -119,6 +132,18 @@ public class AudioManager : MonoBehaviour {
 				// If not, then we set the sounds volume to the music volume
 				s.source.volume = this.musicVolume;
 			}
+		}
+	}
+
+	public void PauseBGM() {
+		if(this.currentBGM.source.isPlaying) {
+			this.currentBGM.source.Pause();
+		}
+	}
+
+	public void UnpauseBGM() {
+		if(!this.currentBGM.source.isPlaying) {
+			this.currentBGM.source.Play();
 		}
 	}
 

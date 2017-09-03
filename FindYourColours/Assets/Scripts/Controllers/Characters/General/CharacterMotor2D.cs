@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
-public class CharacterMotor2D : MonoBehaviour {
+public class CharacterMotor2D : MonoBehaviour 
+{
 
 	// Set a layer mask to determine which objects we want to collide with
 	public LayerMask collisionMask;
@@ -28,18 +29,21 @@ public class CharacterMotor2D : MonoBehaviour {
 
 	// Initialization
 	// Awake is called before Start methods, use this so that this is assigned before camera is made to follow based on collider
-	void Awake () {
+	void Awake () 
+	{
 		// Set collider to new BoxCollider2D object
 		collider = GetComponent<BoxCollider2D> ();
 	}
 
 	// Start method, initialization stuff that doesnt require timing ahead of anything else
-	void Start() {
+	void Start() 
+	{
 		// Calculate ray spacing for the collider
 		CalculateRaySpacing ();
 	}
 
-	public void Move(Vector3 velocity) {
+	public void Move(Vector3 velocity) 
+	{
 		// Update raycast origin co-ords
 		UpdateRaycastOrigins();
 
@@ -58,14 +62,16 @@ public class CharacterMotor2D : MonoBehaviour {
 		transform.Translate (velocity);
 	}
 
-	void HandleVerticalCollisions(ref Vector3 velocity) {
+	void HandleVerticalCollisions(ref Vector3 velocity) 
+	{
 		// Get direction of velocity
 		float directionY = Mathf.Sign(velocity.y); // positive for up, negative for down
 
 		// Set ray length for raycast
 		float rayLength = Mathf.Abs(velocity.y) + skinWidth;
 
-		for(int i = 0; i < verticalRayCount; i++) {
+		for(int i = 0; i < verticalRayCount; i++) 
+		{
 			// Get rayOrigin corner co-ordinates
 			Vector2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
 			// calculate for current ray in loop 
@@ -78,7 +84,8 @@ public class CharacterMotor2D : MonoBehaviour {
 			Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
 
 			// If our raycast hits an object on the desired layers
-			if (hit) {
+			if (hit) 
+			{
 				// We want to set the y velocity equal to the amount we have to move to where the ray intersected to the obstacle
 				velocity.y = (hit.distance - skinWidth) * directionY;
 
@@ -94,14 +101,16 @@ public class CharacterMotor2D : MonoBehaviour {
 
 	}
 
-	void HandleHorizontalCollisions(ref Vector3 velocity) {
+	void HandleHorizontalCollisions(ref Vector3 velocity) 
+	{
 		// Get direction of velocity
 		float directionX = Mathf.Sign(velocity.x); // positive for right, negative for left
 
 		// Set ray length for raycast
 		float rayLength = Mathf.Abs(velocity.x) + skinWidth;
 
-		for(int i = 0; i < horizontalRayCount; i++) {
+		for(int i = 0; i < horizontalRayCount; i++) 
+		{
 			// Get rayOrigin corner co-ordinates
 			Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
 			// calculate for current ray in loop 
@@ -114,7 +123,8 @@ public class CharacterMotor2D : MonoBehaviour {
 			Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red);
 
 			// If our raycast hits an object on the desired layers
-			if (hit) {
+			if (hit) 
+			{
 				// We want to set the y velocity equal to the amount we have to move to where the ray intersected to the obstacle
 				velocity.x = (hit.distance - skinWidth) * directionX;
 
@@ -130,7 +140,8 @@ public class CharacterMotor2D : MonoBehaviour {
 	}
 
 
-	void UpdateRaycastOrigins() {
+	void UpdateRaycastOrigins() 
+	{
 		// First, we get original bounds of the collider object
 		// Then we inset them by the skin width value
 		Bounds bounds = collider.bounds;
@@ -144,7 +155,8 @@ public class CharacterMotor2D : MonoBehaviour {
 
 	}
 
-	void CalculateRaySpacing() {
+	void CalculateRaySpacing() 
+	{
 		// First, we get original bounds of the collider object
 		// Then we inset them by the skin width value
 		Bounds bounds = collider.bounds;
@@ -160,18 +172,21 @@ public class CharacterMotor2D : MonoBehaviour {
 	}
 
 	// Struct for keeping information on the raycast origin coordinates in reference to the collider object
-	struct RaycastOrigins {
+	struct RaycastOrigins 
+	{
 		public Vector2 topLeft, topRight;
 		public Vector2 bottomLeft, bottomRight;
 	}
 
 	// Struct for keeping information on where the collider is colliding with other objects / obstacles
-	public struct CollisionInformation {
+	public struct CollisionInformation 
+	{
 		public bool above, below;
 		public bool left, right;
 
 		// Reset all values in struct
-		public void Reset() {
+		public void Reset() 
+		{
 			above = below = false;
 			left = right = false;
 		}

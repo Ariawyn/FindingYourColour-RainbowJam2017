@@ -28,28 +28,31 @@ public class InputManager : MonoBehaviour
 		if(this.controls.Count == 0) 
 		{
 			// Default movement controls
-			this.controls["Forward"] = KeyCode.W;
-			this.controls["Backward"] = KeyCode.S;
+			this.controls["Jump"] = KeyCode.W;
+			this.controls["Drop"] = KeyCode.S;
 			this.controls["Left"] = KeyCode.A;
 			this.controls["Right"] = KeyCode.D;
 
 			// Alternative movement controls
-			this.controls["alt_Forward"] = KeyCode.UpArrow;
-			this.controls["alt_Backward"] = KeyCode.DownArrow;
+			this.controls["alt_Jump"] = KeyCode.UpArrow;
+			this.controls["alt_Drop"] = KeyCode.DownArrow;
 			this.controls["alt_Left"] = KeyCode.LeftArrow;
 			this.controls["alt_Right"] = KeyCode.RightArrow;
 
 			// Mouse interaction controls
-			this.controls["Interact"] = KeyCode.Mouse0;
+			this.controls["Fire"] = KeyCode.Space;
+			this.controls["alt_Fire"] = KeyCode.F;
+
+			// Game stuff keys:
+			this.controls["Pause"] = KeyCode.Escape;
 		}
 
 		// Initialize horizontal input axis
 		this.horizontalAxis = new Axis(this.controls["Right"], this.controls["Left"], 
 			this.controls["alt_Right"], this.controls["alt_Left"]);
 
-		// Initialize vertical input axis
-		this.verticalAxis = new Axis(this.controls["Forward"], this.controls["Backward"],
-			this.controls["alt_Forward"], this.controls["alt_Backward"]);
+		this.verticalAxis = new Axis(this.controls["Jump"], this.controls["Drop"], 
+			this.controls["alt_Jump"], this.controls["alt_Drop"]);
 	}
 
 	public bool GetKey(string keyName) 

@@ -1,0 +1,25 @@
+GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+G     L                      L         G
+G     L                      L         G
+G     L                      L         G
+G     L                      L         G
+G S   L                      L     S   G
+G     L                      L         G
+GGGGGGGGGG                GGGGGGGGGGGGGG
+G                                      G
+G              GGGGGG                  G
+G                                      G
+G                                      G
+G           GGGG    GGGG               G
+G              L    L                  G
+G              L    L               S  G
+G              L    L                  G
+GGGGGGGGG      L    LWWWWWWWGGGGGGGGGGGG
+G              L    L                  G
+G              L    L                  G
+G              L    L                  G
+G           GGGG    GGGG               G
+            L          L               G
+            L          L               G
+            L    CC    L               G
+GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG

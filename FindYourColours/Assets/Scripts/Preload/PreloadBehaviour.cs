@@ -6,6 +6,6 @@ public class PreloadBehaviour : MonoBehaviour {
 
 	void Start () {
 		this.gameManager = GetComponent<GameManager>();
-		this.gameManager.Play();
+		this.gameManager.Menu();
 	}
 }

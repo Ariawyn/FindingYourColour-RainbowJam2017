@@ -3,6 +3,9 @@ using UnityEngine;
 
 public enum GAME_STATE {
 	MAIN_MENU,
+	TUTORIAL,
 	RUNNING,
-	PAUSED
+	PAUSED,
+	WON,
+	LOST,
 }

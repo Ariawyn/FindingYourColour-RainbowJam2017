@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour {
+public class CameraController : MonoBehaviour 
+{
 	// IF USING ROOM BY ROOM CAMERA
 	private LevelManager levelManager;
 	private Room currentRoom;
@@ -36,16 +37,28 @@ public class CameraController : MonoBehaviour {
 	float smoothLookAheadVelocityX;
 	float smoothVelocityY;
 
-	// TODO: Uncomment this when other todo is finished
-	// bool lookAheadStopped;
+	// Camera shake effect
+	private CameraShake shakeEffect;
+	private bool isShaking;
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+	{
+		// Create a focus area around the target, i.e. the player.
 		focusArea = new FocusArea (target.collider.bounds, focusAreaSize);
+		
+		// Get manager instances required
 		this.levelManager = Object.FindObjectOfType<LevelManager>();
+
+
+		// Get instance of camera shake effects
+		this.shakeEffect = GetComponent<CameraShake>();
+		this.shakeEffect.enabled = false;
+		this.isShaking = false;
 	}
 	
-	void LateUpdate() {
+	void LateUpdate() 
+	{
 		// TODO: Fix slight weird room x offset thing that makes it render weirdly by, maybe just camera shit being weird
 		// Get current room
 		this.currentRoom = this.levelManager.GetRoomByPosition((int)this.target.transform.position.x, (int)this.target.transform.position.y);
@@ -57,60 +70,45 @@ public class CameraController : MonoBehaviour {
 				this.transform.position = new Vector3((this.currentRoom.roomTopLeftPosition.x - (this.currentRoom.width / 2)), -(this.currentRoom.roomTopLeftPosition.y - (this.currentRoom.height / 2)), -10);
 
 				this.oldRoom = this.currentRoom;
+
+				// Enable room spawners in room
+				if(this.currentRoom.hasBeenVisited == false)
+				{
+					this.currentRoom.EnableRoomSpawners();
+					this.currentRoom.hasBeenVisited = true;
+				}
 			}
 		} else {
 			// this is the first thing
 			this.transform.position = new Vector3((this.currentRoom.roomTopLeftPosition.x - this.cameraXOffsetFix - (this.currentRoom.width / 2)) + this.levelManager.currentLevel.roomWidth, -(this.currentRoom.roomTopLeftPosition.y - (this.currentRoom.height / 2)), -10);
+
+
+			// Enable room spawners in room
+			if(this.currentRoom.hasBeenVisited == false)
+			{
+				this.currentRoom.EnableRoomSpawners();
+				this.currentRoom.hasBeenVisited = true;
+			}
+		}
+
+		if(this.shakeEffect.enabled == false && this.isShaking)
+		{
+			this.isShaking = false;
 		}
 	}
 
-	// Update is called once per frame
-	// LateUpdate is used so player movement has usually finished first
-	/*void LateUpdate() {
-		/*focusArea.Update (target.collider.bounds);
-
-		// Create focus area position with offset for camera to follow
-		Vector2 focusPosition = focusArea.center + Vector2.up * verticalOffset;
-
-		// Set direction for lookAhead if x velocity exists
-		if (focusArea.velocity.x != 0) {
-			lookAheadDirectionX = Mathf.Sign (focusArea.velocity.x);
-
-			// TODO: to fix or rather make sure we only need to change the look head stuff if the player actually moves
-			// Do this when I get to refactoring the character motor class according to the tutorial shit
-			// Here is the code:
-			// if(Mathf.Sign(target.playerInput.X) == Mathf.Sign(focusArea.velocity.x) && target.playerInput.x != 0) {
-			//		lookAheadStopped = false;
-			// 		targetLookAheadX = lookAheadDirX * lookAheadDistanceX;
-			// } else {
-			//		if(!lookAheadStopped) {
-			//			lookAheadStopped = true;
-			//			targetLookAheadX = currentLookAheadX + (lookAheadDirectionX * lookAheadDistanceX - currentLookAheadX) / 4f;
-			// 		}
-		    // }
+	// Function to use camera shake effect
+	public void Shake() {
+		if(!this.isShaking) {
+			this.isShaking = true;
+			this.shakeEffect.enabled = true;
+			this.shakeEffect.shakeDuration = 0.4f;
 		}
-
-		// Set target look ahead
-		targetLookAheadX = lookAheadDirectionX * lookAheadDistanceX;
-		currentLookAheadX = Mathf.SmoothDamp (currentLookAheadX, targetLookAheadX, ref smoothLookAheadVelocityX, lookSmoothTimeX);
-
-		// Add look ahead values to focus position
-		focusPosition += Vector2.right * currentLookAheadX;
-
-		// Add vertical smoothing
-		focusPosition.y = Mathf.SmoothDamp(transform.position.y, focusPosition.y, ref smoothVelocityY, VerticalSmoothTime);
-
-		// Make sure camera is ahead on z axis and set to focusPosition
-		transform.position = (Vector3)focusPosition + Vector3.forward * -10;
-	}*/
-
-	void OnDrawGizmos() {
-		/*Gizmos.color = new Color (1, 0, 0, .5f);
-		Gizmos.DrawCube (focusArea.center, focusAreaSize);*/
 	}
 
 	// Focus area surrounding the target for the camera to follow
-	struct FocusArea {
+	struct FocusArea 
+	{
 		// Center point of focus area
 		public Vector2 center;
 
@@ -124,7 +122,8 @@ public class CameraController : MonoBehaviour {
 
 
 		// Takes bounds of the target, and focus area size
-		public FocusArea(Bounds targetBounds, Vector2 size) {
+		public FocusArea(Bounds targetBounds, Vector2 size) 
+		{
 			left = targetBounds.center.x - size.x/2;
 			right = targetBounds.center.x + size.x/2;
 			bottom = targetBounds.min.y;
@@ -135,7 +134,8 @@ public class CameraController : MonoBehaviour {
 		}
 
 		// Update location of focus area
-		public void Update(Bounds targetBounds) {
+		public void Update(Bounds targetBounds) 
+		{
 			// The amount the focus area needs to shift x axis to still focus on target
 			float shiftX = 0;
 			// Compare the amount the target has moved to focus area sides

@@ -4,7 +4,8 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 
-public class LevelManager : MonoBehaviour {
+public class LevelManager : MonoBehaviour 
+{
 	// Singleton instance
 	public static LevelManager instance;
 
@@ -16,8 +17,10 @@ public class LevelManager : MonoBehaviour {
 
 	private Room[,] currentLevelGrid;
 
+	private Room currentRoom;
+
 	private List<Vector2> currentLevelPath;
-	bool hasSetPlayer = false;
+	public bool hasSetPlayer = false;
 
 	// Empty game object container for level
 	private Transform levelContainer;
@@ -66,9 +69,10 @@ public class LevelManager : MonoBehaviour {
 
 		this.currentLevelGrid = new Room[this.currentLevel.gridLength, this.currentLevel.gridHeight];
 
-		for(int x = 0; x < this.currentLevel.gridLength; x++)
+		// Loop through the grid to spawn rooms
+		for(int y = 0; y < this.currentLevel.gridHeight; y++)
 		{
-			for(int y = 0; y < this.currentLevel.gridHeight; y++)
+			for(int x = 0; x < this.currentLevel.gridLength; x++)
 			{
 				// Instantiate room and add levelcontainer as parent NOTE: not actually important but adds structure in inspector
 				GameObject room = new GameObject();
@@ -83,17 +87,21 @@ public class LevelManager : MonoBehaviour {
 				this.currentLevelGrid[x,y] = new Room();
 				this.currentLevelGrid[x,y].roomTopLeftPosition = new Vector2(roomX, roomY);
 
+				// Set current room name for later loading of the room file
+				this.currentLevelGrid[x,y].roomFileName = y + "-" + x + ".txt";
+
 				// Load room
-				this.LoadRoom("TestLevel", roomX, roomY, room.transform);
+				this.LoadRoom("TestLevel", roomX, roomY, room.transform, ref this.currentLevelGrid[x,y]);
 			}
 		}
 	}
 
-	public Room GetRoomByPosition(int posX, int posY) {
+	public Room GetRoomByPosition(int posX, int posY) 
+	{
 		//TODO: Check for index out of bounds
 		int roomX = Mathf.Abs(Mathf.RoundToInt(posX / this.currentLevel.roomWidth));
 		int roomY =  Mathf.Abs(Mathf.RoundToInt(posY / this.currentLevel.roomHeight));
-		Debug.Log("RoomX: " + roomX + " RoomY: " + roomY);
+
 		return this.currentLevelGrid[roomX - 1, roomY];
 	}
 
@@ -107,39 +115,11 @@ public class LevelManager : MonoBehaviour {
 		return false;
 	}
 
-	public void LoadMap(string levelName)
-	{
-		// First empty the current map
-		this.EmptyMap();
 
-		// Set current level
-		this.SetLevelByName(levelName);
-
-		// Get file path to character map file
-		string filePath = Application.dataPath + "/StreamingAssets/" + this.currentLevel.fileName;
-
-		// Then get the characters from the level text file
-		this.currentCharacterLevelMap = this.getCharactersFromTextFile(filePath);
-
-		// Spawn tiles for the correct characters
-		for (int y = 0; y < this.currentCharacterLevelMap.Count(); y++) 
-		{
-			// Go through each character array in the list
-			char[] currentCharacterLine = this.currentCharacterLevelMap.ElementAt(y);
-
-			for (int x = 0; x < currentCharacterLine.Length; x++) 
-			{
-				// Spawn a tile for every character in every character array
-				// Due to the file having been read top down, the spawning of tiles will be upside down, that is why we need to flip it by subtracting y by the row count of the character map
-				this.SpawnTileAt (currentCharacterLine [x], x, this.currentCharacterLevelMap.Count() - 1 - y, this.levelContainer.transform);
-			}
-		}
-	}
-
-	public void LoadRoom(string levelName, int offsetX, int offsetY, Transform room)
+	public void LoadRoom(string levelName, int offsetX, int offsetY, Transform room, ref Room currentRoom)
 	{
 		// Get file path to character map file
-		string filePath = Application.dataPath + "/StreamingAssets/" + this.currentLevel.fileName;
+		string filePath = Application.dataPath + "/StreamingAssets/" + this.currentLevel.name + "/" + currentRoom.roomFileName;
 
 		// Then get the characters from the level text file
 		this.currentCharacterLevelMap = this.getCharactersFromTextFile(filePath);
@@ -154,7 +134,7 @@ public class LevelManager : MonoBehaviour {
 			{
 				// Spawn a tile for every character in every character array
 				// Due to the file having been read top down, the spawning of tiles will be upside down, that is why we need to flip it by subtracting y by the row count of the character map
-				this.SpawnTileAt (currentCharacterLine [x], offsetX + x, this.currentCharacterLevelMap.Count() - 1 - y - offsetY, room);
+				this.SpawnTileAt (currentCharacterLine [x], offsetX + x, this.currentCharacterLevelMap.Count() - 1 - y - offsetY, room, ref currentRoom);
 			}
 		}
 	}
@@ -188,7 +168,7 @@ public class LevelManager : MonoBehaviour {
 		return result;
 	}
 
-	void SpawnTileAt(char c, int x, int y, Transform room) 
+	void SpawnTileAt(char c, int x, int y, Transform room, ref Room currentRoom) 
 	{
 		// If c is 'A' or ' ' then it designates "Air" and should be empty
 		if (c == 'A' || c == ' ') 
@@ -204,11 +184,12 @@ public class LevelManager : MonoBehaviour {
 			player.transform.position = new Vector3 (x, y, 0);
 			this.hasSetPlayer = true;
 			return;
-		} 
+		}
 		else if (c == 'P' && hasSetPlayer) 
 		{
 			return;
 		}
+
 
 		// Find the right character in the levels character to prefab mapping
 		foreach (CharacterToLevelTilePrefab ctp in this.currentLevel.availableLevelTiles) 
@@ -216,11 +197,25 @@ public class LevelManager : MonoBehaviour {
 			// If we found a matching character
 			if (ctp.character == c)
 			{
-				GameObject go = (GameObject)Instantiate (ctp.levelTile, new Vector3 (x, y, 0), Quaternion.identity);
+				GameObject go = (GameObject)Instantiate (ctp.levelTile, new Vector3 (x, y, 0), ctp.levelTile.transform.rotation);
 				// If we are did not instantiate the player object then we want to set the instantiated object as a child of the level object
 				go.transform.parent = room;
 				// Also rename the object to keep it seperate from other cloned instances of the prefab
 				go.name = ctp.levelTile.name + " x: " + x + " y: " + y;
+
+				if(ctp.character == 'S')
+				{
+					// This is a spawner.
+					// Set it as disabled first 
+					go.SetActive(false);
+					
+					if(currentRoom.spawnersInRoom == null)
+					{
+						currentRoom.spawnersInRoom = new List<EnemySpawner>();
+					}
+
+					currentRoom.spawnersInRoom.Add(go.GetComponent<EnemySpawner>());
+				}
 
 				// Could possibly do more to the object
 				return;
@@ -234,7 +229,8 @@ public class LevelManager : MonoBehaviour {
 	void EmptyMap() 
 	{
 		// Find the children of the level empty and destroy their game objects
-		while (this.levelContainer.childCount > 0) {
+		while (this.levelContainer.childCount > 0) 
+		{
 			Transform c = this.levelContainer.GetChild (0);
 			c.SetParent (null);
 			Destroy (c.gameObject);
